@@ -22,16 +22,19 @@ module ConciseLogging
       db = payload[:db_runtime].to_i
 
       message = format(
-        "%{method} %{status} %{ip} %{path}",
+        "%{severity} %{time} [%{session_id}] %{method} %{status} %{ip} %{path}",
+        severity: format_severity(status),
         ip: format("%-15s", ip),
         method: format_method(format("%-6s", method)),
         status: format_status(status),
-        path: path
+        path: path,
+        time: Time.now,
+        session_id: Thread.current[:session_id]
       )
       message << " redirect_to=#{location}" if location.present?
       message << " parameters=#{params}" if params.present?
       message << " #{color(exception_details, RED)}" if exception_details.present?
-      message << " (app:#{app}ms db:#{db}ms)"
+      message << " (current_user.id: #{RequestStore.store[:user_id]})" unless RequestStore.store[:user_id].blank?
 
       logger.warn message
     end
@@ -66,6 +69,17 @@ module ConciseLogging
         color(status, YELLOW)
       else
         color(status, GREEN)
+      end
+    end
+
+    def format_severity(status)
+      status = status.to_i
+      if status >= 400
+        'Logger:error'
+      elsif status >= 300
+        'Logger:warn'
+      else
+        'Logger:info'
       end
     end
   end

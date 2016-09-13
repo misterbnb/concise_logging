@@ -7,6 +7,7 @@ module ConciseLogging
     def call(env)
       request = ActionDispatch::Request.new(env)
       Thread.current[:logged_ip] = request.env['HTTP_X_REAL_IP'] || request.ip
+      Thread.current[:session_id] = request.session.id
       @app.call(env)
     ensure
       Thread.current[:logged_ip] = nil
