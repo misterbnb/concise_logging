@@ -36,7 +36,7 @@ module ConciseLogging
       message << " #{color(exception_details, RED)}" if exception_details.present?
       message << " (current_user.id: #{RequestStore.store[:user_id]})" unless RequestStore.store[:user_id].blank?
 
-      logger.warn message
+      logger.warn message if status.to_i != 200
     end
 
     def compute_status(payload)
