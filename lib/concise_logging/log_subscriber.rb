@@ -63,7 +63,9 @@ module ConciseLogging
 
     def format_status(status)
       status = status.to_i
-      if status >= 400
+      if status >= 500
+        color(status, MAGENTA)
+      elsif status >= 400
         color(status, RED)
       elsif status >= 300
         color(status, YELLOW)
@@ -74,7 +76,9 @@ module ConciseLogging
 
     def format_severity(status)
       status = status.to_i
-      if status >= 400
+      if status >= 500
+        color('Logger:critical', MAGENTA)
+      elsif status >= 400
         'Logger:error'
       elsif status >= 300
         'Logger:warn'
