@@ -16,6 +16,7 @@ module ConciseLogging
 
       ip = Thread.current[:logged_ip]
       location = Thread.current[:logged_location]
+      referer = Thread.current[:logged_referer]
       Thread.current[:logged_location] = nil
 
       app = payload[:view_runtime].to_i
@@ -31,12 +32,13 @@ module ConciseLogging
         time: Time.now,
         session_id: Thread.current[:session_id]
       )
+      message << " referer=#{referer}"
       message << " redirect_to=#{location}" if location.present?
       message << " parameters=#{params}" if params.present?
       message << " #{color(exception_details, RED)}" if exception_details.present?
       message << " (current_user.id: #{RequestStore.store[:user_id]})" unless RequestStore.store[:user_id].blank?
 
-      logger.warn message 
+      logger.warn message
     end
 
     def compute_status(payload)
